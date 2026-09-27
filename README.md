@@ -169,15 +169,7 @@ The app will open in your browser at `http://localhost:8501`.
 
 ---
 
-## 🗺️ Roadmap
 
-- [ ] Dockerize for one-command deployment
-- [ ] Support residential proxy for reliable YouTube downloads on cloud/datacenter IPs
-- [ ] Add export options (PDF / Markdown report)
-- [ ] Multi-language support beyond English/Hinglish
-- [ ] Persistent chat history across sessions
-
----
 
 ## 📄 License
 
