@@ -21,7 +21,7 @@ Follow these strict rules:
 3. DO NOT include any introductory or concluding text.
 4. Keep the diagram concise and easy to read.
 5. VERY IMPORTANT: Do NOT use parentheses `()`, brackets `[]`, or quotes `"` inside node labels unless you wrap the ENTIRE label in quotes, e.g., A["This is a (label)"]
-6. Avoid special characters like : and { } in labels.
+6. Avoid special characters like : and {{ }} in labels.
 
 Here are the concepts and summary:
 {text}
