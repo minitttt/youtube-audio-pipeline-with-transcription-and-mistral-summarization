@@ -1,17 +1,16 @@
-import whisper
 from config import Config, logger
 
 model = None
 
-def load_model() -> whisper.Whisper:
+def load_model():
     """
     Loads and caches the Whisper model in memory.
-    
-    Returns:
-        whisper.Whisper: The loaded Whisper model.
+    whisper is imported lazily so this module can be imported on cloud
+    environments where torch/whisper aren't installed.
     """
     global model
     if model is None:
+        import whisper  # lazy import — not available on Streamlit Cloud
         logger.info(f"Loading Whisper model: {Config.WHISPER_MODEL}...")
         try:
             model = whisper.load_model(Config.WHISPER_MODEL)
