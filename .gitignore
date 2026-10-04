@@ -3,6 +3,7 @@
 .env.*
 !.env.example
 
+
 # Python
 __pycache__/
 *.py[cod]
@@ -45,3 +46,5 @@ Thumbs.db
 # Logs
 *.log
 
+vector_db/
+test_mermaid.py
