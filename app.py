@@ -2,8 +2,8 @@ import re
 import streamlit as st
 import time
 from dotenv import load_dotenv
-from utils.audio_processor import process_input, cleanup_files
-from core.transcribe import transcribe_all
+# audio_processor and transcribe are only available in local environments with ffmpeg/torch installed.
+# They are imported lazily inside the pipeline fallback so the cloud deploy doesn't crash.
 from core.summary import summarize, generate_title
 from core.extractor import extract_action_items, extract_key_decisions, extract_questions
 from core.segmenter import segment_transcript
@@ -353,15 +353,21 @@ if run_btn:
                     pass
 
             if not transcript:
-                update_step("audio", "active")
-                with status_ph.container(): render_pipeline()
-                audio_data = process_input(source)
-                chunks = audio_data.get("chunks", [])
-                update_step("audio", "done")
-                update_step("transcript", "active")
-                with status_ph.container(): render_pipeline()
-                transcript = transcribe_all(chunks, translate=(language.lower() != "english"))
-                update_step("transcript", "done")
+                # Local fallback (requires ffmpeg + torch + yt-dlp — not available on cloud)
+                try:
+                    from utils.audio_processor import process_input, cleanup_files
+                    from core.transcribe import transcribe_all
+                    update_step("audio", "active")
+                    with status_ph.container(): render_pipeline()
+                    audio_data = process_input(source)
+                    chunks = audio_data.get("chunks", [])
+                    update_step("audio", "done")
+                    update_step("transcript", "active")
+                    with status_ph.container(): render_pipeline()
+                    transcript = transcribe_all(chunks, translate=(language.lower() != "english"))
+                    update_step("transcript", "done")
+                except ImportError:
+                    raise Exception("This video has no captions available. Local audio transcription is not supported in the cloud version. Please use a YouTube video with captions enabled.")
 
             def run_step(key, fn):
                 update_step(key, "active")
@@ -383,8 +389,11 @@ if run_btn:
             study_followup   = run_step("followup",    lambda: generate_study_followup(transcript))
             rag_chain        = run_step("rag",         lambda: build_rag_chain(transcript))
 
-            cleanup_files(chunks)
-            if "original_wav" in audio_data: cleanup_files([audio_data["original_wav"]])
+            try:
+                cleanup_files(chunks)
+                if "original_wav" in audio_data: cleanup_files([audio_data["original_wav"]])
+            except (NameError, UnboundLocalError):
+                pass  # No local files to clean up on cloud
 
             with status_ph.container(): render_pipeline()
             st.session_state.result = {
